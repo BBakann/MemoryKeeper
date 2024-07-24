@@ -13,6 +13,7 @@
         android:layout_width="271dp"
         android:layout_height="269dp"
         android:layout_marginTop="50dp"
+        android:onClick="selectImage"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
