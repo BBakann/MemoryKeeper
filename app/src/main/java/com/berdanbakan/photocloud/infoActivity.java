@@ -3,6 +3,8 @@ package com.berdanbakan.photocloud;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteStatement;
 import android.graphics.Bitmap;
 import android.graphics.ImageDecoder;
 import android.net.Uri;
@@ -28,11 +30,15 @@ import androidx.core.view.WindowInsetsCompat;
 import com.berdanbakan.photocloud.databinding.ActivityInfoBinding;
 import com.google.android.material.snackbar.Snackbar;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+
 public class infoActivity extends AppCompatActivity {
     private ActivityInfoBinding binding;
     ActivityResultLauncher<Intent> activityResultLauncher;
     ActivityResultLauncher<String> requestPermissionLauncher;
     Bitmap selectedImage;
+    SQLiteDatabase database;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -166,7 +172,56 @@ public class infoActivity extends AppCompatActivity {
 
 
     public void save(View view) {
+        String nameText=binding.nameText.getText().toString();
+        String dateText=binding.dateText.getText().toString();
+        Bitmap smallImage=makeSmallerImage(selectedImage,300);
 
+
+        ByteArrayOutputStream outputStream= new ByteArrayOutputStream();
+        smallImage.compress(Bitmap.CompressFormat.PNG,50,outputStream);
+        byte[] byteArray=outputStream.toByteArray();
+
+        try {
+            database=this.openOrCreateDatabase("Memories",MODE_PRIVATE,null);
+            database.execSQL("CREATE TABLE IF NOT EXISTS memories(id INTEGER PRIMARY KEY,memoryname VARCHAR,date VARCHAR,image BLOB)");// ımage'in kaydı BLOB'tur.
+
+
+            String sQLstring= "INSERT INTO memories(memoryname,date,image)VALUES(?,?,?,?)";
+            SQLiteStatement sqLiteStatement= database.compileStatement(sQLstring);
+            sqLiteStatement.bindString(1,nameText);
+            sqLiteStatement.bindString(2,dateText);
+            sqLiteStatement.bindBlob(3,byteArray);
+
+            sqLiteStatement.execute();
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        Intent intent=new Intent(infoActivity.this, MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
+
+
+    }
+
+    public  Bitmap makeSmallerImage(Bitmap image,int maxSize){
+        int width=image.getWidth();
+        int height=image.getHeight();
+
+        float bitMapRatio= (float) width/ (float) height;
+        if (bitMapRatio>1){
+            //landscape
+            width=maxSize;
+            height=(int) (width/ bitMapRatio);
+
+        }else {
+            //portrait
+            height=maxSize;
+            width=(int) (height*bitMapRatio);
+
+        }
+
+        return image.createScaledBitmap(image,width,height,true);
     }
 
     public void back(View view) {
