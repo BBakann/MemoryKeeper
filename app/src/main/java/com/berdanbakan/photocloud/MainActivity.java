@@ -90,6 +90,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.addmemory) {
             Intent intent = new Intent(this, infoActivity.class);
+            intent.putExtra("info","new");
             startActivity(intent);
         }
 

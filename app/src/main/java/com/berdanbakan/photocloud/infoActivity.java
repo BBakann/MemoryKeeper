@@ -3,9 +3,11 @@ package com.berdanbakan.photocloud;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.ImageDecoder;
 import android.net.Uri;
 import android.os.Build;
@@ -53,8 +55,49 @@ public class infoActivity extends AppCompatActivity {
             return insets;
 
 
+
         });
         registerLauncher();
+
+        database=this.openOrCreateDatabase("Memories",MODE_PRIVATE,null);
+
+        Intent intent=getIntent();
+        String info=intent.getStringExtra("info");
+
+        if (info.equals("new")){
+            //new memory
+            binding.nameText.setText("");
+            binding.dateText.setText("");
+            binding.imageButton.setVisibility(View.VISIBLE);
+            binding.imageView3.setImageResource(R.drawable.selectimage);
+
+        }else {
+            int memoryId=intent.getIntExtra("memoryId", 0);
+            binding.imageButton.setVisibility(View.INVISIBLE);
+
+            try {
+                Cursor cursor=database.rawQuery("SELECT * FROM memories WHERE id=?",new String[]{String.valueOf(memoryId)});
+                int memoryIx=cursor.getColumnIndex("memoryname");
+                int dateNameIx=cursor.getColumnIndex("date");
+                int imageIx=cursor.getColumnIndex("image");
+
+                while (cursor.moveToNext()){
+                    binding.nameText.setText(cursor.getString(memoryIx));
+                    binding.dateText.setText(cursor.getString(dateNameIx));
+
+                    byte[] bytes=cursor.getBlob(imageIx);
+                    Bitmap bitmap= BitmapFactory.decodeByteArray(bytes,0, bytes.length);
+                    binding.imageView3.setImageBitmap(bitmap);
+                }
+                cursor.close();
+
+
+            }catch (Exception e){
+                e.printStackTrace();
+
+            }
+        }
+
     }
 
     public void selectImage(View view) {
@@ -182,7 +225,7 @@ public class infoActivity extends AppCompatActivity {
         byte[] byteArray=outputStream.toByteArray();
 
         try {
-            database=this.openOrCreateDatabase("Memories",MODE_PRIVATE,null);
+
             database.execSQL("CREATE TABLE IF NOT EXISTS memories(id INTEGER PRIMARY KEY,memoryname VARCHAR,date VARCHAR,image BLOB)");// ımage'in kaydı BLOB'tur.
 
 
@@ -224,6 +267,4 @@ public class infoActivity extends AppCompatActivity {
         return image.createScaledBitmap(image,width,height,true);
     }
 
-    public void back(View view) {
-    }
 }

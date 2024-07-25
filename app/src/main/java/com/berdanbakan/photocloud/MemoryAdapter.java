@@ -1,5 +1,6 @@
 package com.berdanbakan.photocloud;
 
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,8 +27,18 @@ public class MemoryAdapter extends RecyclerView.Adapter<MemoryAdapter.MemoryHold
     }
 
     @Override
-    public void onBindViewHolder(@NonNull MemoryHolder holder, int position) {
+    public void onBindViewHolder(@NonNull MemoryAdapter.MemoryHolder holder, int position) {
         holder.binding.recyclerViewText.setText(memoryArrayList.get(position).name);
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent= new Intent(holder.itemView.getContext(), infoActivity.class);
+                intent.putExtra("info","old");
+                intent.putExtra("memoryId",memoryArrayList.get(position).id);
+                holder.itemView.getContext().startActivity(intent);
+
+            }
+        });
 
     }
 
