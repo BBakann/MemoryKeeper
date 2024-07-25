@@ -186,7 +186,7 @@ public class infoActivity extends AppCompatActivity {
             database.execSQL("CREATE TABLE IF NOT EXISTS memories(id INTEGER PRIMARY KEY,memoryname VARCHAR,date VARCHAR,image BLOB)");// ımage'in kaydı BLOB'tur.
 
 
-            String sQLstring= "INSERT INTO memories(memoryname,date,image)VALUES(?,?,?,?)";
+            String sQLstring= "INSERT INTO memories(memoryname,date,image)VALUES(?,?,?)";
             SQLiteStatement sqLiteStatement= database.compileStatement(sQLstring);
             sqLiteStatement.bindString(1,nameText);
             sqLiteStatement.bindString(2,dateText);

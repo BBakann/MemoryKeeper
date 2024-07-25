@@ -15,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.berdanbakan.photocloud.databinding.ActivityMainBinding;
 
@@ -23,6 +24,7 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity {
     private ActivityMainBinding binding;
     ArrayList<Memory> memoryArrayList;
+    MemoryAdapter memoryAdapter;
 
 
     @Override
@@ -32,15 +34,20 @@ public class MainActivity extends AppCompatActivity {
         binding=ActivityMainBinding.inflate(getLayoutInflater());
         View view=binding.getRoot();
         setContentView(view);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.recyclerView, (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
+            return insets.consumeSystemWindowInsets();
 
 
         });
-
         memoryArrayList=new ArrayList<>();
+
+        binding.recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        memoryAdapter=new MemoryAdapter(memoryArrayList);
+        binding.recyclerView.setAdapter(memoryAdapter);
+
+
         getData();
     }
         private void getData(){
@@ -56,9 +63,11 @@ public class MainActivity extends AppCompatActivity {
                 Memory memory=new Memory(name,id);
                 memoryArrayList.add(memory);
             }
+            memoryAdapter.notifyDataSetChanged();
             cursor.close();
 
         }catch (Exception e){
+            e.printStackTrace();
 
         }
 
